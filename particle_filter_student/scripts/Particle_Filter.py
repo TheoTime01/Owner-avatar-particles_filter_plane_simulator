@@ -62,7 +62,7 @@ class Particle_Filter:
 
         current_distance_to_obstacle = distance_to_obstacle(plane_pose['x'], plane_pose['y'], self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
 
-        self.weightingParticle_list( current_distance_to_obstacle)
+        self.weightingParticle_list(current_distance_to_obstacle)
 
 
         # ----------------------------------------------------------------------------------------------------------------
@@ -83,14 +83,18 @@ class Particle_Filter:
             #  coordinate from a particle according a
             ##  roulette wheel algorithm
             #  Note that weighted_random_choice return a string containing coodinate x and y of the selected particle
+        for _ in range(len(self.particle_list)):
             coord = self.weighted_random_choice(choices)
             x_coord = int(float(coord.split('_')[0]))
             y_coord = int(float(coord.split('_')[1]))
-            print(x_coord)
-            print(y_coord)
-            new_particle_list.append(Particle(x_coord,y_coord,1,1))
+            # Apply motion to the selected particle coordinates
+            new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+            new_x = max(0, min(self.width, new_x))
+            # Ensure new coordinates are within the environment boundaries
+            new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
 
         return new_particle_list
+
 
         # -------------------------------------------------------
         # ----------- SELECT PARTICLE  -----------
@@ -105,7 +109,7 @@ class Particle_Filter:
         
         seuil = random.uniform(0, total_weight)
         
-        cumulative_weight = 0.0
+        cumulative_weight = 0
         for particle, weight in choices.items():
             cumulative_weight += weight
             if cumulative_weight >= seuil:
@@ -146,7 +150,14 @@ class Particle_Filter:
         ## Note ue the function distance_to_obstacle to get the
         ## estimate particle to the ground distance
 
-        current_distance_to_obstacle = distance_to_obstacle(p_x, p_y, self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
-        w=current_distance_to_obstacle/observed_distance
+        # Estimate the distance from the particle to the ground using the distance_to_obstacle function
+        estimated_distance = distance_to_obstacle(p_x, p_y, self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
 
+        # Calculate the error (difference) between the observed distance and the estimated distance
+        distance_error = abs(observed_distance - estimated_distance)
+
+        # Calculate the weight based on the distance error.
+        # The smaller the error, the higher the weight; larger errors yield lower weights.
+        # Using an exponential decay function here.
+        w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2))
         return w
