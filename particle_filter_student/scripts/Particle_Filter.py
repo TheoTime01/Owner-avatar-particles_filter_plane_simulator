@@ -90,8 +90,9 @@ class Particle_Filter:
             # Apply motion to the selected particle coordinates
             new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
             new_x = max(0, min(self.width, new_x))
+            new_y = max(0, min(self.FIXED_PLANE_Y, y_coord))
             # Ensure new coordinates are within the environment boundaries
-            new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
+            new_particle_list.append(Particle(new_x,new_y,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
 
         return new_particle_list
 
@@ -159,5 +160,6 @@ class Particle_Filter:
         # Calculate the weight based on the distance error.
         # The smaller the error, the higher the weight; larger errors yield lower weights.
         # Using an exponential decay function here.
-        w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2))
+        w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2)) * 1/(distance_error+1)
+        w = distance_error*2 + 5
         return w
