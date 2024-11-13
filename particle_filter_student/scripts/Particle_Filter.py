@@ -49,7 +49,7 @@ class Particle_Filter:
         ## Use the Particle object to fill the list particle_list
         ##
         for i in range(nbr):
-            particle_list.append(Particle(random.uniform(start_x, max_x),random.uniform(start_y, max_y),1,0))
+            particle_list.append(Particle(random.uniform(start_x, max_x),random.uniform(start_y, max_y),1/nbr,1/nbr))
 
         return particle_list
 
