@@ -49,7 +49,7 @@ class Particle_Filter:
         ## Use the Particle object to fill the list particle_list
         ##
         for i in range(nbr):
-            particle_list.append(Particle(random.uniform(start_x, max_x),random.uniform(start_y, max_y),1,1))
+            particle_list.append(Particle(random.uniform(start_x, max_x),random.uniform(start_y, max_y),1,0))
 
         return particle_list
 
@@ -84,8 +84,10 @@ class Particle_Filter:
             ##  roulette wheel algorithm
             #  Note that weighted_random_choice return a string containing coodinate x and y of the selected particle
             coord = self.weighted_random_choice(choices)
-            x_coord = int(coord.split('_')[0])
-            y_coord = int(coord.split('_')[1])
+            x_coord = int(float(coord.split('_')[0]))
+            y_coord = int(float(coord.split('_')[1]))
+            print(x_coord)
+            print(y_coord)
             new_particle_list.append(Particle(x_coord,y_coord,1,1))
 
         return new_particle_list
@@ -99,8 +101,15 @@ class Particle_Filter:
         ##   choices: dictionary holding particle coordination as key
         ##  and weight as value
         ##  return the selected particle key
-        #####
-        return ""
+        total_weight = sum(choices.values())
+        
+        seuil = random.uniform(0, total_weight)
+        
+        cumulative_weight = 0.0
+        for particle, weight in choices.items():
+            cumulative_weight += weight
+            if cumulative_weight >= seuil:
+                return particle
 
     # ----------------------------------------------------------------------------------------------------------------
     # --------------------------------------------- EVALUATE PARTICLE (proba) ---------------------------------------
