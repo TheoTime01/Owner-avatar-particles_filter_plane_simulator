@@ -36,20 +36,15 @@ class Particle_Filter:
         # ----------------------------------------------------------------------------------------------------------------
         # ----------------------------------------- COMPUTED RANDOM PARTICLES--------------------------------------------
         # ----------------------------------------------------------------------------------------------------------------
-    def getRandParticle(self,nbr, start_x, max_x, start_y, max_y):
+    def getRandParticle(self, nbr, start_x, max_x, start_y, max_y):
         particle_list = []
-        ###################################
-        ##### TODO
-        ##   nbr: number fo particles
-        ##   start_x: min x possible coordinate
-        ##   max_x: max x possible coordinate
-        ##   start_y: min y possible coordinate
-        ##   max_y: max y possible coordinate
-        #####
-        ## Use the Particle object to fill the list particle_list
-        ##
+        for _ in range(nbr):
+            x = random.uniform(start_x, max_x)
+            y = random.uniform(start_y, max_y) 
+            particle = Particle(x, y,0,0) 
+            particle_list.append(particle)  
 
-        return particle_list
+            return particle_list
 
         # ----------------------------------------------------------------------------------------------------------------
         # ----------------------------------- UPDATE PARTICLE ACCORDING NEX POSE-----------------------------------------
@@ -84,6 +79,13 @@ class Particle_Filter:
             #   coord = self.weighted_random_choice(choices)
             #   x_coord = int(coord.split('_')[0])
             #   y_coord = int(coord.split('_')[1])
+            # Perform weighted sampling and generate new particles
+        for i in range(len(self.particle_list)):
+            # Select a particle based on weights
+            coord = self.weighted_random_choice(choices)
+            x_coord = int(coord.split('_')[0])
+            y_coord = int(coord.split('_')[1])
+
 
         return new_particle_list
 
@@ -91,13 +93,16 @@ class Particle_Filter:
         # ----------- SELECT PARTICLE  -----------
         # -------------------------------------------------------
     def weighted_random_choice(self,choices):
-        ###################################
-        ##### TODO
-        ##   choices: dictionary holding particle coordination as key
-        ##  and weight as value
-        ##  return the selected particle key
-        #####
-        return ""
+
+        total_weight = sum(choices.values())
+        
+        seuil = random.uniform(0, total_weight)
+        
+        cumulative_weight = 0.0
+        for particle, weight in choices.items():
+            cumulative_weight += weight
+            if cumulative_weight >= seuil:
+                return particle
 
     # ----------------------------------------------------------------------------------------------------------------
     # --------------------------------------------- EVALUATE PARTICLE (proba) ---------------------------------------
@@ -121,16 +126,9 @@ class Particle_Filter:
     #  ----------- EVALUATE PARTICLE (Weight)  -----------
     # -----------------------------------------------------
     def weightingParticle(self,p_x, p_y, observed_distance):
-        ###################################
-        ##### TODO
-        ##   p_x: x coordinate of the particle p
-        ##  p_y: y coordinate of the particle p
-        ##  observed_distance: distance to the ground
-        ##  measure by the probe
-        ##
-        ## return weight corresponding to the given particle
-        ## according observation
-        ##
-        ## Note ue the function distance_to_obstacle to get the
-        ## estimate particle to the ground distance
-        return ""
+
+        estimated_distance = distance_to_obstacle(p_x, p_y, self.obs_grid, self.width,self.height,self.SCALE_FACTOR)
+
+        y = estimated_distance/observed_distance
+
+        return y
