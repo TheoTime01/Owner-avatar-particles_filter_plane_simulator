@@ -48,6 +48,8 @@ class Particle_Filter:
         #####
         ## Use the Particle object to fill the list particle_list
         ##
+        for i in range(nbr):
+            particle_list.append(Particle(random.uniform(start_x, max_x),random.uniform(start_y, max_y),1,1))
 
         return particle_list
 
@@ -81,9 +83,10 @@ class Particle_Filter:
             #  coordinate from a particle according a
             ##  roulette wheel algorithm
             #  Note that weighted_random_choice return a string containing coodinate x and y of the selected particle
-            #   coord = self.weighted_random_choice(choices)
-            #   x_coord = int(coord.split('_')[0])
-            #   y_coord = int(coord.split('_')[1])
+            coord = self.weighted_random_choice(choices)
+            x_coord = int(coord.split('_')[0])
+            y_coord = int(coord.split('_')[1])
+            new_particle_list.append(Particle(x_coord,y_coord,1,1))
 
         return new_particle_list
 
@@ -133,4 +136,8 @@ class Particle_Filter:
         ##
         ## Note ue the function distance_to_obstacle to get the
         ## estimate particle to the ground distance
-        return ""
+
+        current_distance_to_obstacle = distance_to_obstacle(p_x, p_y, self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
+        w=current_distance_to_obstacle/observed_distance
+
+        return w
