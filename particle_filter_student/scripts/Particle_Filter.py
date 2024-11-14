@@ -93,7 +93,7 @@ class Particle_Filter:
                 new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
             else:
                 new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
-                new_x = new_x+random.uniform(-5,5)
+                new_x = new_x+random.uniform(-20,20)
             new_x = max(0, min(self.width, new_x))
             # Ensure new coordinates are within the environment boundaries
             new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))

@@ -142,6 +142,13 @@ def motion_prediction(self):
 
 For each analysis, provide a set of screenshots and your associated comments and conclusion
 
+
+## Motions Model
+
+Lorsqu'on fait la prédiction du mouvement on peut utiliser deux modèles différents, un ou l'on ne fait aucun mouvement pour "l'exploration", ou l'on avance seulement. On peut voir que les particules on donc tendances à rester concentrés en groupe.
+
+Alors que si l'on ajoute une marge d'erreur on à évidemment les particules qui s'étalent plus ce qui explore et permets de possiblement trouver une meilleure valeur.
+
 ## Example of result (video)
 
 [![Particules Behavior](img/particules.gif)](https://www.youtube.com/watch?v=3IBemFtwZ8g)
