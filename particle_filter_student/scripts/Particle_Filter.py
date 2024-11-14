@@ -83,18 +83,33 @@ class Particle_Filter:
             #  coordinate from a particle according a
             ##  roulette wheel algorithm
             #  Note that weighted_random_choice return a string containing coodinate x and y of the selected particle
+        # for _ in range(len(self.particle_list)):
+        #     coord = self.weighted_random_choice(choices)
+        #     x_coord = int(float(coord.split('_')[0]))
+        #     y_coord = int(float(coord.split('_')[1]))
+        #     # Apply motion to the selected particle coordinates
+        #     new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+        #     noise_x = random.gauss(0, 0.1)
+        #     new_x = max(0, min(self.width, new_x+noise_x))
+        #     # Ensure new coordinates are within the environment boundaries
+        #     new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
         for _ in range(len(self.particle_list)):
+            model_version=1
             coord = self.weighted_random_choice(choices)
             x_coord = int(float(coord.split('_')[0]))
             y_coord = int(float(coord.split('_')[1]))
             # Apply motion to the selected particle coordinates
-            new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+            if model_version==0:
+                new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+            else:
+                new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+                new_x = new_x+random.uniform(-20,20)
             new_x = max(0, min(self.width, new_x))
-            new_y = max(0, min(self.FIXED_PLANE_Y, y_coord))
             # Ensure new coordinates are within the environment boundaries
-            new_particle_list.append(Particle(new_x,new_y,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
+            new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
 
         return new_particle_list
+        
 
 
         # -------------------------------------------------------
@@ -154,12 +169,24 @@ class Particle_Filter:
         # Estimate the distance from the particle to the ground using the distance_to_obstacle function
         estimated_distance = distance_to_obstacle(p_x, p_y, self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
 
-        # Calculate the error (difference) between the observed distance and the estimated distance
-        distance_error = abs(observed_distance - estimated_distance)
 
         # Calculate the weight based on the distance error.
         # The smaller the error, the higher the weight; larger errors yield lower weights.
         # Using an exponential decay function here.
+        # w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2)) * 1/(distance_error+1)
+        # w = distance_error*2 + 5
+        
+        # noisy_observed_distance = observed_distance + random.gauss(0, 0.8)
+
+        # # # Calculate the error (difference) between the observed distance and the estimated distance
+        # distance_error = abs((noisy_observed_distance) - estimated_distance)
+
+        # observation_bias = -3
+
+        # observed_distance = observed_distance + observation_bias
+
+        distance_error = abs((observed_distance) - estimated_distance)
+
         w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2)) * 1/(distance_error+1)
-        w = distance_error*2 + 5
+
         return w

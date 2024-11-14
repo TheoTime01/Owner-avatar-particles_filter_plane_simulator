@@ -64,8 +64,6 @@ class PlaneSimulation:
         
         # Use the chosen file if valid, otherwise default to 'obstacle.npy'
         self.selected_file = file_mapping.get(file_choice, 'mapsbosses.npy')
-
-        print(self.selected_file)
         
 
         # Load the obstacle matrix from the selected npy file
