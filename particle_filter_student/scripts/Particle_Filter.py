@@ -84,11 +84,16 @@ class Particle_Filter:
             ##  roulette wheel algorithm
             #  Note that weighted_random_choice return a string containing coodinate x and y of the selected particle
         for _ in range(len(self.particle_list)):
+            model_version=0
             coord = self.weighted_random_choice(choices)
             x_coord = int(float(coord.split('_')[0]))
             y_coord = int(float(coord.split('_')[1]))
             # Apply motion to the selected particle coordinates
-            new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+            if model_version==0:
+                new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+            else:
+                new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+                new_x = new_x+random.uniform(-5,5)
             new_x = max(0, min(self.width, new_x))
             # Ensure new coordinates are within the environment boundaries
             new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
