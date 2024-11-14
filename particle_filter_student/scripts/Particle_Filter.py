@@ -48,6 +48,8 @@ class Particle_Filter:
         #####
         ## Use the Particle object to fill the list particle_list
         ##
+        for i in range(nbr):
+            particle_list.append(Particle(random.uniform(start_x, max_x),random.uniform(start_y, max_y),1/nbr,1/nbr))
 
         return particle_list
 
@@ -60,7 +62,7 @@ class Particle_Filter:
 
         current_distance_to_obstacle = distance_to_obstacle(plane_pose['x'], plane_pose['y'], self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
 
-        self.weightingParticle_list( current_distance_to_obstacle)
+        self.weightingParticle_list(current_distance_to_obstacle)
 
 
         # ----------------------------------------------------------------------------------------------------------------
@@ -81,11 +83,23 @@ class Particle_Filter:
             #  coordinate from a particle according a
             ##  roulette wheel algorithm
             #  Note that weighted_random_choice return a string containing coodinate x and y of the selected particle
-            #   coord = self.weighted_random_choice(choices)
-            #   x_coord = int(coord.split('_')[0])
-            #   y_coord = int(coord.split('_')[1])
+        for _ in range(len(self.particle_list)):
+            model_version=0
+            coord = self.weighted_random_choice(choices)
+            x_coord = int(float(coord.split('_')[0]))
+            y_coord = int(float(coord.split('_')[1]))
+            # Apply motion to the selected particle coordinates
+            if model_version==0:
+                new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+            else:
+                new_x = x_coord + random.uniform(self.MOTION_PLANNER_MIN, self.MOTION_PLANNER_MAX)
+                new_x = new_x+random.uniform(-5,5)
+            new_x = max(0, min(self.width, new_x))
+            # Ensure new coordinates are within the environment boundaries
+            new_particle_list.append(Particle(new_x,y_coord,1/self.NB_PARTICLES,1/self.NB_PARTICLES))
 
         return new_particle_list
+
 
         # -------------------------------------------------------
         # ----------- SELECT PARTICLE  -----------
@@ -96,8 +110,15 @@ class Particle_Filter:
         ##   choices: dictionary holding particle coordination as key
         ##  and weight as value
         ##  return the selected particle key
-        #####
-        return ""
+        total_weight = sum(choices.values())
+        
+        seuil = random.uniform(0, total_weight)
+        
+        cumulative_weight = 0
+        for particle, weight in choices.items():
+            cumulative_weight += weight
+            if cumulative_weight >= seuil:
+                return particle
 
     # ----------------------------------------------------------------------------------------------------------------
     # --------------------------------------------- EVALUATE PARTICLE (proba) ---------------------------------------
@@ -133,4 +154,15 @@ class Particle_Filter:
         ##
         ## Note ue the function distance_to_obstacle to get the
         ## estimate particle to the ground distance
-        return ""
+
+        # Estimate the distance from the particle to the ground using the distance_to_obstacle function
+        estimated_distance = distance_to_obstacle(p_x, p_y, self.obs_grid,self.width,self.height,self.SCALE_FACTOR)
+
+        # Calculate the error (difference) between the observed distance and the estimated distance
+        distance_error = abs(observed_distance - estimated_distance)
+
+        # Calculate the weight based on the distance error.
+        # The smaller the error, the higher the weight; larger errors yield lower weights.
+        # Using an exponential decay function here.
+        w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2))
+        return w
