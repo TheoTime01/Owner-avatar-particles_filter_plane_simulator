@@ -162,7 +162,5 @@ class Particle_Filter:
         distance_error = abs(observed_distance - estimated_distance)
 
         # Calculate the weight based on the distance error.
-        # The smaller the error, the higher the weight; larger errors yield lower weights.
-        # Using an exponential decay function here.
-        w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2))
+        w = math.exp(- (distance_error ** 2) / (2 * self.DISTANCE_ERROR ** 2)) * 1/(distance_error+1)
         return w
