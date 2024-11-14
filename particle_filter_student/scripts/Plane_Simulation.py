@@ -15,6 +15,7 @@ from common.ToolBox import distance_to_obstacle,distance_to_obstacle_coord,std
 
 
 class PlaneSimulation:
+    maps_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "map")
     BLACK = [0, 0, 0]
     WHITE = [255, 255, 255]
     RED = [255, 0, 0]
@@ -48,7 +49,27 @@ class PlaneSimulation:
     stdlist=[]
 
     def __init__(self):
-        grid_temp = self.load_obs_matrix("/tmp/", "obstacle.npy")
+        maps_path = self.maps_path
+        # Prompt the user to select one of the available npy files
+        file_choice = input("Choose an npy file to load (options: bosses, fort, plat, sinus, triangle_inv): ").strip().lower()
+        
+        # Map user input to file names
+        file_mapping = {
+            'bosses': 'mapsbosses.npy',
+            'fort': 'mapsfort.npy',
+            'plat': 'mapsplat.npy',
+            'sinus': 'mapssinus.npy',
+            'triangle_inv': 'mapstriangle_inverse.npy'
+        }
+        
+        # Use the chosen file if valid, otherwise default to 'obstacle.npy'
+        self.selected_file = file_mapping.get(file_choice, 'mapsbosses.npy')
+
+        print(self.selected_file)
+        
+
+        # Load the obstacle matrix from the selected npy file
+        grid_temp = self.load_obs_matrix(maps_path, self.selected_file)
         if len(grid_temp) == 0:
             self.obs_grid = [[0 for x in range(int(round(self.width / self.SCALE)))] for y in range(int(round(self.height / self.SCALE)))]
         else:
@@ -97,7 +118,7 @@ class PlaneSimulation:
                     print('down')
                     if event.key == pygame.K_s:
                         print('key s pressed')
-                        self.save_obs_matrix("/tmp/", "obstacle.npy", self.obs_grid )
+                        self.save_obs_matrix(self.maps_path, self.selected_file, self.obs_grid )
                     elif event.key == pygame.K_SPACE:
                         if is_in_pause:
                             is_in_pause = False
@@ -287,13 +308,14 @@ class PlaneSimulation:
 
     def save_obs_matrix(self,filePath, fileName, matrix):
         # file=adjustFileName(filePath,fileName,matrix,'obs.data.npy')
-        file = filePath + fileName
+        file = filePath +"/"+fileName
+        print(f"file:{file}")
         np.save(file, matrix)
 
     def load_obs_matrix(self,filePath, fileName):
-        if os.path.isfile(filePath + fileName):
+        if os.path.isfile(filePath +"/"+ fileName):
             # return np.load(filePath + fileName)
-            return np.asarray(np.load(filePath + fileName))
+            return np.asarray(np.load(filePath +"/"+ fileName))
         else:
             return []
 
