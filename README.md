@@ -147,7 +147,11 @@ For each analysis, provide a set of screenshots and your associated comments and
 
 Lorsqu'on fait la prédiction du mouvement on peut utiliser deux modèles différents, un ou l'on ne fait aucun mouvement pour "l'exploration", ou l'on avance seulement. On peut voir que les particules on donc tendances à rester concentrés en groupe.
 
+La vidéo '''model_version_0.webm''' dans img montre ce comportement.
+
 Alors que si l'on ajoute une marge d'erreur on à évidemment les particules qui s'étalent plus ce qui explore et permets de possiblement trouver une meilleure valeur.
+
+La vidéo '''model_version-1.webm''' dans img montre ce comportement.
 
 ## Example of result (video)
 
